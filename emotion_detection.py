@@ -1,5 +1,8 @@
 import pandas as pd
+import numpy as np
 import neattext.functions as nfx
+from suggestion import Suggestion
+
 
 # machine learning packages
 # Estimators
@@ -25,9 +28,9 @@ class Emotion:
         self.x_train = None
 
     def read_dataset(self):
-        train_dataset = pd.read_csv("./dataset/train.csv")
-        test_dataset = pd.read_csv("./dataset/test.csv")
-        valid_dataset = pd.read_csv("./dataset/val.csv")
+        train_dataset = pd.read_csv("./datasets/emotions/train.csv")
+        test_dataset = pd.read_csv("./datasets/emotions/test.csv")
+        valid_dataset = pd.read_csv("./datasets/emotions/val.csv")
 
         list_dataset = [train_dataset, test_dataset, valid_dataset]
 
@@ -65,14 +68,52 @@ if __name__ == '__main__':
 
     emotion.train_model()
 
-    # Make A Prediction
-    sample = "I have to look at life in her perspective, and it would break anyone’s heart.", \
-             "We stayed in a tiny mountain village called Droushia, and these people brought hospitality to incredible new heights.", \
-             "But the rest of it came across as a really angry, drunken rant.", \
-             "Which, to be honest, was making Brad slightly nervous."
-
     print(f"check accuracy: {emotion.check_accuracy()}\n")
 
+    inputArray = []
+
+    while True:
+        query = input("> ")
+
+        currentEmotion = emotion.prediction(query)
+
+        inputArray.append(currentEmotion[0])
+
+        # emotion capture of 3 last inputs
+        if len(inputArray) == 3:
+            unique, counts = np.unique(inputArray, return_counts=True)
+
+            # create a dict with the emotions and their occurrences
+            emotion_dict = dict(zip(unique, counts))
+            print(emotion_dict)
+
+            # get the dominant emotion
+            dominantEmotion = max(emotion_dict, key=emotion_dict.get)
+            print(f"dominant emotion: {dominantEmotion}")
+
+            # find and suggest music based on the dominant emotion
+            suggest = Suggestion()
+
+            result = suggest.search(dominantEmotion)
+
+            print(f"looks like your emotion is: {dominantEmotion}\nI can suggest you this song: {result}")
+
+
+            inputArray.clear()
+
+        if query in 'q':
+            break
+
+
+
+    # Make A Prediction
+    # sample = "I have to look at life in her perspective, and it would break anyone’s heart.", \
+    #          "We stayed in a tiny mountain village called Droushia, and these people brought hospitality to incredible new heights.", \
+    #          "But the rest of it came across as a furious, drunken rant.", \
+    #          "Which, to be honest, was making Brad slightly nervous."
+
+    # print(f"check accuracy: {emotion.check_accuracy()}\n")
+
     # print(f"prediction: {emotion.pipe_lr.predict(emotion.x_test.real)}\n")
-    print(f"prediction: {emotion.pipe_lr.predict(sample)}")
+    # print(f"prediction: {emotion.pipe_lr.predict(sample)}")
 
