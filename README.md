@@ -2,7 +2,7 @@
 
 Chatbot with emotion recognition using NLP
 
-## Requirement
+## Requirements
 
 - [python 3.7.9](https://www.python.org/downloads/release/python-379/)
 
