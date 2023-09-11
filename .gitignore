@@ -1,2 +1,3 @@
 text classification/saved_model
 app/__pycache__/
+app/db.sqlite3
