@@ -1,9 +1,36 @@
 import numpy as np
+from random import randint, choice
 from app.suggestion import Suggestion
 from emotion_detection import Emotion
 from Blenderbot import BlenderBot
+from re import search, split
 # flask imports
 from flask import Flask, render_template, request
+
+
+def add_emoji_to_text(text, current_emotion):
+    # create a dict of emojis based on the emotions (anger and sadness have the same emojis)
+    emoji_dict = {
+        "anger": ["\U0001F615", "\U0001F641"],                  # 😕, 🙁
+        "sadness": ["\U0001F615", "\U0001F641"],                # 😕, 🙁
+        "joy": ["\U0001F603", "\U0001F601", "\U0001F642"],      # 😃, 😁, 🙂
+        "love": ["\U0001F60D", "\U0001F970"],                   # 😍, 🥰
+        "surprise": ["\U0001F973"],                             # 🥳
+        "fear": ["\U0001F62C"],                                 # 😬
+    }
+
+    # find the '?', '.' or '!' character in the given text
+    character = search("[?|.|!]", text)
+
+    # split the string
+    output = split('[?|.|!]', text, 1)
+
+    if character is not None:
+        new_text = output[0] + f" {choice(emoji_dict[current_emotion])}{character[0]}" + ''.join(map(str, output[1:]))
+    else:
+        new_text = output[0] + f"{choice(emoji_dict[current_emotion])}" + ''.join(map(str, output[1:]))
+
+    return new_text
 
 
 #  initialization of variables
@@ -35,37 +62,16 @@ def get_bot_response():
     past_bot_text = request.args.get('botMsg')
     past_user_text = request.args.get('userMsg')
 
-    # if past_user_text is None:
-    #     past_user_text = ' '
-
     # find the emotion
     current_emotion = emotion.prediction(user_text)
 
-    print(f"{user_text} : {current_emotion}")  # TODO: DEBUG
-
-    inputArray.append(current_emotion)
-
     # initiate the variable which suggest a song
     reply = None
-    # emotion capture of 5 last inputs
-    if len(inputArray) == 3:
-        unique, counts = np.unique(inputArray, return_counts=True)
 
-        # create a dict with the emotions and their occurrences
-        emotion_dict = dict(zip(unique, counts))
-        print(emotion_dict)  # TODO: DEBUG
-
-        # get the dominant emotion
-        dominant_emotion = max(emotion_dict, key=emotion_dict.get)
-        print(f"dominant emotion: {dominant_emotion}")  # TODO: DEBUG
-
-        # find and suggest music based on the dominant emotion
-        result = suggest.search(dominant_emotion)
-
-        reply = f"looks like your emotion is {dominant_emotion}.<br>I can suggest you this song:<br>{result}"
-
-        inputArray.clear()
-
+    # find and suggest music based on the emotion
+    if randint(0, 1) == 1:
+        result = suggest.search(current_emotion)
+        reply = f"Hey! You might also be interested in listening to this song:<br>{result}"
 
     # save past user input and bot response
     global past_user_inputs
@@ -75,18 +81,18 @@ def get_bot_response():
         past_user_inputs.append(past_user_text)
         bot_response.append(past_bot_text)
 
-
     paylaod = bot.get_payolaod(past_user_inputs, bot_response, user_text)
 
     # sent the query
     query = bot.query(paylaod)
 
-    print(query)  # TODO: DEBUG
+    # add emoji in text
+    final_query = add_emoji_to_text(query['generated_text'], current_emotion)
 
     if reply is None:
-        return query['generated_text']
+        return final_query
     else:
-        return f"{query['generated_text']}<br><br>{reply}"
+        return f"{final_query}<br><br>{reply}"
 
 
 if __name__ == '__main__':

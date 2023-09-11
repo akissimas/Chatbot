@@ -29,32 +29,3 @@ class BlenderBot:
             response = requests.post(self.API_URL, headers=self.headers, data=payload)
 
         return response.json()
-
-
-# bot = BlenderBot()
-#
-# flag = True
-#
-# while True:
-#     message = input("MESSAGE: ")
-#     if message in ["", "q", "quit"]:
-#         break
-#
-#
-#     if flag:
-#         paylaod = bot.get_payolaod("Hi!", "Hi! I'm ChatBot 😄", message)  # initial message
-#         flag = False
-#     else:
-#         paylaod = bot.get_payolaod(past_user_inputs, bot_response, message)
-#
-#     # sent the query
-#     query = bot.query(paylaod)
-#
-#     # save user input and bot response
-#     past_user_inputs = message
-#     bot_response = query['generated_text']
-#
-#     # print bot response
-#     print(f"🤖: {query}")
-#
-

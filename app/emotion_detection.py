@@ -9,7 +9,7 @@ class Emotion:
 
     def load_model(self):
         # Load predictor
-        self.predictor = ktrain.load_predictor('../saved_model_v4')
+        self.predictor = ktrain.load_predictor('../saved_model_v5')
 
     def prediction(self, text):
         return self.predictor.predict(text)
@@ -53,17 +53,3 @@ if __name__ == '__main__':
 
         if query in 'q':
             break
-
-
-
-    # Make A Prediction
-    # sample = "It is so annoying when she starts typing on her computer in the middle of the night!", \
-    #          "dude, that is my favorite sandwich place ever. ummm did you take PICTURES?", \
-    #          "Chillin with the roomies. Can't wait for the zombie CLWN CR. Its gonna be 6-8 weeks", \
-    #          "I'm having a problem with my photo here in twitter amf!!!...can't see my face!"
-
-    # print(f"check accuracy: {emotion.check_accuracy()}\n")
-
-    # print(f"prediction: {emotion.pipe_lr.predict(emotion.x_test.real)}\n")
-    # print(f"prediction: {emotion.pipe_lr.predict(sample)}")
-
